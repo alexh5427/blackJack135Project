@@ -9,8 +9,8 @@ Card* createDeck(){
         return NULL;
     }
     Card *cardPtr = deck;
-    for (int suit = 0; suit < 4; ++suit){
-        for (int rank = 1; rank <=13; ++rank){
+    for (int suit = 0; suit < 4; suit++){
+        for (int rank = 1; rank <=13; rank++){
             cardPtr->rank = rank;
             cardPtr->suit = suit;
             if (rank == 1){
@@ -28,10 +28,7 @@ Card* createDeck(){
 
 
 void shuffleDeck(Card* deck){
-    if (deck == NULL){
-        return;
-    }
-    for (int i = DECK_SIZE - 1; i > 0; --i){
+    for (int i = DECK_SIZE - 1; i > 0; i--){
         int j = rand() % (i+1);
         Card temp = deck[i];
         deck[i] = deck[j];
@@ -41,9 +38,7 @@ void shuffleDeck(Card* deck){
 
 
 Card drawCard(Card* deck, int* deckIndex){
-    Card card = deck[*deckIndex];
-    (*deckIndex)++;
-    return card;
+    return deck[(*deckIndex)++];
 }
 
 void freeDeck(Card* deck){
