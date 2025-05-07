@@ -1,5 +1,5 @@
 #ifndef DECK_H
-#define DECk_H
+#define DECK_H
 #define DECK_SIZE 52
 
 typedef struct{
