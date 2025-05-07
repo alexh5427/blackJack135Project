@@ -1,21 +1,25 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "game.h"
-#include "settings.h"
+#include "deck.h"
 
-static const char *suitNames[]={
-    "Heart","Diamonds","Clubs","Spades"
-};
 
-static const char *rankNames[]={
-    "None", "Ace", "2","3","4","5","6","7","8","9","10","Jack","Queen","King"
-};
+
+
+
+
+
+
+
+static const char *suits[]={"Heart","Diamonds","Clubs","Spades"};
+
+static const char *ranks[]={"None", "Ace", "2","3","4","5","6","7","8","9","10","Jack","Queen","King"};
 
 
 void startGame(Hand *player,Hand *dealer){
     player->cards=malloc(MAX_HAND_CARDS * sizeof(Card));
     dealer->cards=malloc(MAX_HAND_CARDS * sizeof(Card));
-    if (player->cards == NULL || dealer->cards == NULL){
+    if (!player->cards||!dealer->cards){
         fprintf(stderr, "Failed to Start Game\n");
         exit(1);
     }
@@ -23,63 +27,69 @@ void startGame(Hand *player,Hand *dealer){
     dealer->count=0;
 }
 
-int findTotal(Hand *hand){
+int calculateTotal(Hand* hand){
     int total = 0;
     int acesCount = 0;
-    for (Card *ptr = hand->cards; ptr < hand->cards + hand->count;ptr++){
-        total+=ptr->value;
-        if (ptr->value==11){
+    for (int i = 0; i < hand->count; i++){
+        total+=hand->cards[i].value;
+        if (hand->cards[i].value==11){
             acesCount++;
         }
-        while (total>21 && acesCount>0){
-            total-=10;
-            acesCount--;
-        }
-        return total;
     }
+    while (total>21 && acesCount>0){
+        total-=10;
+        acesCount--;
+    }
+    return total;
+    
 }
+
+
+
 
 void showHand(const char *name, Hand *hand, int hidedealercard){
     printf("%s's hand", name);
     if (!hidedealercard){
-        int total = findTotal(hand);
-        printf("(total=%d)", total);
+        printf("(total=%d)", calculateTotal(hand));
     }
     printf(": ");
     for (int i = 0; i < hand->count; i++){
-        printf("[hidden]");
-    }else{
-        const char *rankStr = rankNames[hand->cards[i].rank];
-        const char *suitStr = suitNames[hand->cards[i].suit];
-        printf("%s of %s", rankStr, suitStr);
+        if (i==0 && hidedealercard){
+            printf("[hidden]");
+        } else {
+            printf("%s of %s", ranks[hand->cards[i].rank], suits[hand->cards[i].suit]);
+        }
+        if (i < hand->count -1){
+            printf(", ");
+        }
     }
-    if(i < hand->count - 1){
-        printf(",");
-    }
+    printf("\n");
 }
-printf("\n");
 
-void dealerSteve(Hand *dealer, Card *deck, int *deckIndex){
-    int total = findTotal(dealer);
+
+void dealerSteve(Hand* dealer, Card* deck, int* deckIndex){
     printf("dealers turn...\n");
-    printf("Dealer", dealer, 0);
-    while (total<17){
-        Card newCard = drawCard(deck, deckIndex);
-        dealer->cards[dealer->count++]=newCard;
-        printf("dealer draws %s of %s \n", rankNames[newCard.rank], suitNames[newCard.suit]);
-        total = findTotal(dealer);
-    }
-    if(total>21){
-        printf("Dealer Busts with: %d\n", total);
-    } else {
-        printf("dealer stands with: %d\n", total);
+    showHand("Dealer", dealer, 0);
+    while (calculateTotal(dealer)<17){
+        dealer->cards[dealer->count++]= drawCard(deck, deckIndex);
+        printf("dealer draws %s of %s \n", ranks[dealer->cards[dealer->count-1].rank], suits[dealer->cards[dealer->count-1].suit]);
     }
 }
+
+
+
+
+
+
+
+
+
+
 
 
 int checkWinner(Hand *player, Hand *dealer){
-    int playerTotal = findTotal(player);
-    int dealerTotal = findTotal(dealer);
+    int playerTotal = calculateTotal(player);
+    int dealerTotal = calculateTotal(dealer);
     if(playerTotal>21){
         return -1;
     }
@@ -99,7 +109,9 @@ int playRound (Hand *player, Hand *dealer, Card *deck){
     int deckIndex = 0;
     char choice;
 
-    player->count = dealer->count = 0;
+    player->count = 0;
+    dealer->count = 0;
+
     player->cards[player->count++] = drawCard(deck, &deckIndex);
     player->cards[player->count++] = drawCard(deck, &deckIndex);
     dealer->cards[dealer->count++] = drawCard(deck, &deckIndex);
@@ -109,37 +121,52 @@ int playRound (Hand *player, Hand *dealer, Card *deck){
     showHand("dealer", dealer, 1);
 
     while(1){
-        int playerTotal = findTotal(player);
-        if (playerTotal>21){
+        int total = calculateTotal(player);
+        if (total>21){
             printf("Bust! Dealer Wins");
             return -1;
         }
         printf("Hit (h) or Stand (s)?");
-        if (scanf(" %c", &choice) != 1){
-            continue;
-        }
+        scanf(" %c", &choice);
+
         if (choice == 'h' || choice == 'H'){
-            Card newCard = drawCard(deck, &deckIndex);
-            player->cards[player->count++] = newCard;
-            printf("You drew: %s of %s.\n", rankNames[newCard.rank], suitNames[newCard.suit]);
-            printf("Total is now: %d.\n", findToal(player));
+            player->cards[player->count++] = drawCard(deck, &deckIndex);
+            printf("You drew: %s of %s.\n", ranks[player->cards[player->count-1].rank], suits[player->cards[player->count-1].suit]);
+            printf("Total is now: %d.\n", calculateTotal(player));
         }else if (choice == 's' || choice == 'S'){
             break;
         } else{
-            printf("enter 'h' or 's' only")
-            continue;
+            printf("enter 'h' or 's' only");
         }
     }
 
+
+
+
+
+    printf("\n\n");
+
+
+
+
+
+
+
+
+
+
     dealerSteve(dealer,deck, &deckIndex);
-    int result = checkWinner(player,dealer);
-    if(result==1){
-        printf("You Win");
-    }else if (result == -1){
-        printf("dealer Wins");
+    int re = checkWinner(player,dealer);
+    if(re==1){
+        printf("\n");
+        printf("You Win\n");
+    }else if (re == -1){
+        printf("\n");
+        printf("dealer Wins\n");
     }else{
-        printf("TIE!");
+        printf("\n");
+        printf("TIE!\n");
     }
-    return result;
+    return re;
 }
 
