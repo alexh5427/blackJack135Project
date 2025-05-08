@@ -4,13 +4,6 @@
 #include "deck.h"
 
 
-
-
-
-
-
-
-
 static const char *suits[]={"Heart","Diamonds","Clubs","Spades"};
 
 static const char *ranks[]={"None", "Ace", "2","3","4","5","6","7","8","9","10","Jack","Queen","King"};
@@ -45,8 +38,6 @@ int calculateTotal(Hand* hand){
 }
 
 
-
-
 void showHand(const char *name, Hand *hand, int hidedealercard){
     printf("%s's hand", name);
     if (!hidedealercard){
@@ -75,17 +66,6 @@ void dealerSteve(Hand* dealer, Card* deck, int* deckIndex){
         printf("dealer draws %s of %s \n", ranks[dealer->cards[dealer->count-1].rank], suits[dealer->cards[dealer->count-1].suit]);
     }
 }
-
-
-
-
-
-
-
-
-
-
-
 
 int checkWinner(Hand *player, Hand *dealer){
     int playerTotal = calculateTotal(player);
@@ -140,20 +120,7 @@ int playRound (Hand *player, Hand *dealer, Card *deck){
         }
     }
 
-
-
-
-
     printf("\n\n");
-
-
-
-
-
-
-
-
-
 
     dealerSteve(dealer,deck, &deckIndex);
     int re = checkWinner(player,dealer);
