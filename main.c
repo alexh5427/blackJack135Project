@@ -1,3 +1,11 @@
+/*
+Alexander M Higgins
+COS 135: C programming
+2pm TuTh
+*/
+
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
